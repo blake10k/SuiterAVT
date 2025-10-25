@@ -86,7 +86,7 @@
     <div class="container mx-auto px-4 py-8">
         <header class="text-center mb-12">
             <h1 class="text-4xl md:text-5xl font-bold" style="color: #1877F2;">Analytics & Visualization Tool</h1>
-            <p class="text-lg text-gray-600 mt-2">A comprehensive reference for statistical analysis in Python for quantitative psychological research.</p>
+            <p class="text-lg text-gray-600 mt-2">An advanced data analytics and visualization tool with comprehensive reference guides for statistical analysis in Python designed for quantitative psychological research.</p>
         </header>
 
         <div class="flex flex-col md:flex-row gap-8 lg:gap-12">
@@ -251,34 +251,34 @@
                                     <option value="boxplot">Box Plot</option>
                                     <option value="violin_plot">Violin Plot</option>
                                     <option value="qq_plot">QQ Plot</option>
-                                    <option value="ridgeline_plot">Ridgeline Plot</option>
+                                    <!-- <option value="ridgeline_plot">Ridgeline Plot</option> Removed -->
                                 </optgroup>
                                 <optgroup label="Relationships &amp; Comparisons">
                                     <option value="scatter_plot">Scatter Plot</option>
                                     <option value="line_chart">Line Chart</option>
                                     <option value="bar_chart">Bar Chart</option>
-                                    <option value="area_chart">Area Chart</option>
+                                    <!-- <option value="area_chart">Area Chart</option> Removed -->
                                     <option value="bubble_chart">Bubble Chart</option>
                                     <option value="dot_plot">Dot Plot</option>
                                 </optgroup>
                                 <optgroup label="Correlations &amp; Matrix">
                                     <option value="heatmap">Heatmap</option>
-                                    <option value="correlogram">Correlogram</option>
+                                    <!-- <option value="correlogram">Correlogram</option> Removed -->
                                 </optgroup>
                                 <optgroup label="Part-to-Whole &amp; Hierarchical">
                                     <option value="pie_chart">Pie Chart</option>
                                     <option value="pareto_chart">Pareto Chart</option>
                                     <option value="treemap">Treemap</option>
-                                    <option value="sunburst_chart">Sunburst Chart</option>
+                                    <!-- <option value="sunburst_chart">Sunburst Chart</option> Removed -->
                                     <option value="mosaic_plot">Mosaic Plot</option>
                                 </optgroup>
                                 <optgroup label="Flow &amp; Networks">
                                     <option value="sankey_diagram">Sankey Diagram</option>
-                                    <option value="network_graph">Network Graph</option>
+                                    <!-- <option value="network_graph">Network Graph</option> Removed -->
                                     <option value="funnel_chart">Funnel Chart</option>
                                 </optgroup>
                                 <optgroup label="Specialized &amp; Statistical">
-                                    <option value="forest_plot">Forest Plot</option>
+                                    <!-- <option value="forest_plot">Forest Plot</option> Removed -->
                                     <option value="kaplan_meier_curve">Kaplan-Meier Curve</option>
                                     <option value="roc_curve">ROC Curve</option>
                                 </optgroup>
@@ -2626,18 +2626,26 @@ import semopy
                          selectorsHTML = twoCatVars();
                         break;
                     case 'pareto_chart':
-                         selectorsHTML = complexChartMessage('Pareto Chart', 'Requires a categorical variable for the bars and a numerical variable for their counts/values.') + oneCatOneNum();
+                         selectorsHTML = oneCatOneNum('Categories', 'Values');
                          break;
                     case 'treemap':
+                        selectorsHTML = baseHelpText('Requires Labels (e.g., product), Parents (e.g., category), and a numeric Value (e.g., sales).') + 
+                            `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createSelectHTML('vis-labels', 'Labels Column', appState.headers)}${createSelectHTML('vis-parents', 'Parents Column', appState.headers)}${createSelectHTML('vis-values', 'Values Column (Numeric)', appState.headers)}</div>`;
+                         break;
                     case 'sunburst_chart':
                         selectorsHTML = complexChartMessage(chart.replace(/_/g, ' '), 'Requires hierarchical data, often with labels, parent categories, and values.')
                         break;
                     
                     // Flow & Networks
-                    case 'sankey_diagram':
                     case 'network_graph':
-                    case 'funnel_chart':
                         selectorsHTML = complexChartMessage(chart.replace(/_/g, ' '), 'Requires specific data structures (e.g., source-target-value for Sankey, nodes-edges for Network).');
+                        break;
+                    case 'sankey_diagram':
+                        selectorsHTML = complexChartMessage('Sankey Diagram', 'Requires columns representing the Source nodes, Target nodes, and the numeric Value of the flow between them.') +
+                            `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createSelectHTML('vis-source', 'Source Column', appState.headers)}${createSelectHTML('vis-target', 'Target Column', appState.headers)}${createSelectHTML('vis-value', 'Value Column (Numeric)', appState.headers)}</div>`;
+                        break;
+                    case 'funnel_chart':
+                         selectorsHTML = oneCatOneNum('Funnel Stages (Categorical)', 'Values (Numeric)');
                         break;
                     
                     // Specialized & Statistical
@@ -2646,10 +2654,12 @@ import semopy
                             `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">${createSelectHTML('vis-labels', 'Study Labels', appState.headers)}${createSelectHTML('vis-effect', 'Effect Sizes', appState.headers)}${createSelectHTML('vis-se', 'Standard Errors', appState.headers)}</div>`;
                         break;
                     case 'kaplan_meier_curve':
-                        selectorsHTML = complexChartMessage('Kaplan-Meier Curve', 'Requires a time-to-event duration column and a status column indicating if the event occurred (e.g., 1 for event, 0 for censored).') + twoNumVars('Time-to-Event', 'Event Status');
+                        selectorsHTML = complexChartMessage('Kaplan-Meier Curve', 'Requires a time-to-event duration column and a status column indicating if the event occurred (e.g., 1 for event, 0 for censored).') + 
+                            `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${createSelectHTML('vis-varX', 'Time-to-Event Column', appState.headers)}${createSelectHTML('vis-varY', 'Event Status Column (1=event, 0=censored)', appState.headers)}</div>`;
                         break;
                     case 'roc_curve':
-                        selectorsHTML = complexChartMessage('ROC Curve', 'Requires a column of true binary outcomes (0/1) and a column of predicted probabilities for the positive class.') + twoNumVars('True Labels (0/1)', 'Predicted Probabilities');
+                        selectorsHTML = complexChartMessage('ROC Curve', 'Requires a column of true binary outcomes (0/1) and a column of predicted probabilities for the positive class.') + 
+                            `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${createSelectHTML('vis-varX', 'True Labels (0/1)', appState.headers)}${createSelectHTML('vis-varY', 'Predicted Probabilities (0-1)', appState.headers)}</div>`;
                         break;
                         
                     default:
@@ -3013,6 +3023,458 @@ import semopy
                                 break;
                             }
 
+                            case 'pareto_chart': {
+                                const catVar = document.getElementById('vis-varCat').value;
+                                const numVar = document.getElementById('vis-varNum').value;
+                                
+                                const aggregatedData = {};
+                                appState.data.forEach(row => {
+                                    const cat = row[catVar];
+                                    const num = parseFloat(row[numVar]);
+                                    if (cat != null && !isNaN(num)) {
+                                        if (!aggregatedData[cat]) aggregatedData[cat] = 0;
+                                        aggregatedData[cat] += num;
+                                    }
+                                });
+
+                                const categories = Object.keys(aggregatedData);
+                                if (categories.length === 0) throw new Error("No valid data found for Pareto chart.");
+
+                                // Sort data from largest to smallest value
+                                const sortedData = categories.map(cat => ({
+                                    category: cat,
+                                    value: aggregatedData[cat]
+                                })).sort((a, b) => b.value - a.value);
+
+                                const sortedCategories = sortedData.map(d => d.category);
+                                const sortedValues = sortedData.map(d => d.value);
+                                
+                                // Calculate cumulative percentage
+                                const totalSum = sortedValues.reduce((a, b) => a + b, 0);
+                                let runningSum = 0;
+                                const cumulativePct = sortedValues.map(val => {
+                                    runningSum += val;
+                                    return (runningSum / totalSum) * 100;
+                                });
+
+                                plotData = [
+                                    { // Bar chart
+                                        type: 'bar',
+                                        x: sortedCategories,
+                                        y: sortedValues,
+                                        name: 'Value',
+                                        marker: { color: '#1877F2' }
+                                    },
+                                    { // Line chart
+                                        type: 'scatter',
+                                        mode: 'lines+markers',
+                                        x: sortedCategories,
+                                        y: cumulativePct,
+                                        name: 'Cumulative %',
+                                        yaxis: 'y2',
+                                        line: { color: '#f59e0b' } // amber-500
+                                    }
+                                ];
+                                
+                                plotLayout = getPlotlyLayout(`Pareto Chart for ${numVar} by ${catVar}`, catVar);
+                                plotLayout.yaxis = { title: 'Value', gridcolor: '#e5e7eb' };
+                                plotLayout.yaxis2 = {
+                                    title: 'Cumulative Percentage',
+                                    range: [0, 105],
+                                    overlaying: 'y',
+                                    side: 'right',
+                                    ticksuffix: '%',
+                                    gridcolor: 'transparent'
+                                };
+                                plotLayout.legend = { x: 0.7, y: 1.15, orientation: 'h' };
+                                break;
+                            }
+
+                            case 'treemap': {
+                                const labelsVar = document.getElementById('vis-labels').value;
+                                const parentsVar = document.getElementById('vis-parents').value;
+                                const valuesVar = document.getElementById('vis-values').value;
+                                
+                                const labels = [];
+                                const parents = [];
+                                const values = [];
+
+                                appState.data.forEach(row => {
+                                    const label = row[labelsVar];
+                                    const parent = row[parentsVar]; // Can be null/empty
+                                    const value = parseFloat(row[valuesVar]);
+
+                                    if (label != null && !isNaN(value) && value > 0) {
+                                        labels.push(label);
+                                        parents.push(parent || ""); // Use empty string for root nodes
+                                        values.push(value);
+                                    }
+                                });
+
+                                if (labels.length === 0) throw new Error("No valid data found for Treemap. Requires at least labels and positive numeric values.");
+
+                                plotData = [{
+                                    type: "treemap",
+                                    labels: labels,
+                                    parents: parents,
+                                    values: values,
+                                    textinfo: "label+value+percent parent",
+                                    marker: { colorscale: 'Blues' }
+                                }];
+
+                                plotLayout = getPlotlyLayout(`Treemap of ${valuesVar}`);
+                                plotLayout.margin = { t: 50, l: 25, r: 25, b: 25 };
+                                break;
+                            }
+
+
+                            // --- NEWLY IMPLEMENTED CHARTS ---
+
+                            case 'qq_plot': {
+                                const varName = document.getElementById('vis-var1').value;
+                                const data = getNumericColumn(varName).sort((a, b) => a - b);
+                                if (data.length < 2) throw new Error(`Column "${varName}" has no numeric data.`);
+                                
+                                const n = data.length;
+                                const theoreticalQuantiles = [];
+                                const dataQuantiles = [];
+
+                                for (let i = 0; i < n; i++) {
+                                    const p = (i + 1 - 0.5) / n; // Benard's plotting position
+                                    theoreticalQuantiles.push(jStat.normal.inv(p, 0, 1));
+                                    dataQuantiles.push(data[i]);
+                                }
+                                
+                                // Calculate line of best fit for the quantiles
+                                const dataPairs = theoreticalQuantiles.map((tq, i) => [tq, dataQuantiles[i]]);
+                                const { m, b } = ss.linearRegression(dataPairs);
+
+                                plotData = [
+                                    {
+                                        x: theoreticalQuantiles,
+                                        y: dataQuantiles,
+                                        mode: 'markers',
+                                        type: 'scatter',
+                                        name: 'Data Quantiles',
+                                        marker: { color: '#1877F2', size: 8, opacity: 0.7 }
+                                    },
+                                    {
+                                        x: theoreticalQuantiles,
+                                        y: theoreticalQuantiles.map(tq => m * tq + b),
+                                        mode: 'lines',
+                                        type: 'scatter',
+                                        name: 'Reference Line',
+                                        line: { color: '#f59e0b', dash: 'dash' } // amber-500
+                                    }
+                                ];
+                                plotLayout = getPlotlyLayout(`QQ Plot for ${varName}`, 'Theoretical Quantiles (Normal)', 'Sample Quantiles');
+                                break;
+                            }
+                            
+                            case 'bubble_chart': {
+                                const xVar = document.getElementById('vis-varX').value;
+                                const yVar = document.getElementById('vis-varY').value;
+                                const zVar = document.getElementById('vis-varZ').value;
+                                
+                                const combined = appState.data.map(row => ({
+                                    x: parseFloat(row[xVar]),
+                                    y: parseFloat(row[yVar]),
+                                    z: parseFloat(row[zVar])
+                                })).filter(p => !isNaN(p.x) && !isNaN(p.y) && !isNaN(p.z) && p.z > 0);
+
+                                if (combined.length === 0) throw new Error("No valid data points (X, Y, Z) found for the selected variables.");
+
+                                const xData = combined.map(p => p.x);
+                                const yData = combined.map(p => p.y);
+                                const zData = combined.map(p => p.z);
+                                
+                                // Scale zData for reasonable bubble sizes
+                                const maxZ = ss.max(zData);
+                                const scaledSizes = zData.map(z => (z / maxZ) * 50 + 5); // min size 5, max size 55
+
+                                plotData = [{
+                                    x: xData,
+                                    y: yData,
+                                    mode: 'markers',
+                                    type: 'scatter',
+                                    marker: { 
+                                        color: '#1877F2', 
+                                        size: scaledSizes, 
+                                        opacity: 0.6,
+                                        sizeref: 2 * ss.max(scaledSizes) / (40**2), // Plotly size scaling
+                                        sizemode: 'area'
+                                    },
+                                    text: zData.map(z => `${zVar}: ${z.toFixed(2)}`) // Add hover text
+                                }];
+                                plotLayout = getPlotlyLayout(`${yVar} vs. ${xVar} (Sized by ${zVar})`, xVar, yVar);
+                                break;
+                            }
+
+                            case 'dot_plot': {
+                                const catVar = document.getElementById('vis-varCat').value;
+                                const numVar = document.getElementById('vis-varNum').value;
+                                
+                                const groupedData = {};
+                                appState.data.forEach(row => {
+                                    const cat = row[catVar];
+                                    const num = parseFloat(row[numVar]);
+                                    if (cat != null && !isNaN(num)) {
+                                        if (!groupedData[cat]) groupedData[cat] = [];
+                                        groupedData[cat].push(num);
+                                    }
+                                });
+
+                                const categories = Object.keys(groupedData).sort();
+                                if (categories.length === 0) throw new Error("No valid data found to create dot plot.");
+                                const means = categories.map(cat => ss.mean(groupedData[cat]));
+
+                                plotData = [{
+                                    x: means,
+                                    y: categories,
+                                    mode: 'markers',
+                                    type: 'scatter',
+                                    marker: { color: '#1877F2', size: 12 }
+                                }];
+                                plotLayout = getPlotlyLayout(`Mean of ${numVar} by ${catVar}`, `Mean ${numVar}`, catVar);
+                                plotLayout.yaxis.type = 'category'; // Ensure categories are treated as such
+                                plotLayout.yaxis.autorange = 'reversed';
+                                break;
+                            }
+
+                            case 'kaplan_meier_curve': {
+                                const timeVar = document.getElementById('vis-varX').value;
+                                const statusVar = document.getElementById('vis-varY').value;
+
+                                const data = appState.data.map(row => ({
+                                    time: parseFloat(row[timeVar]),
+                                    status: parseInt(row[statusVar], 10) // 1 = event, 0 = censored
+                                })).filter(d => !isNaN(d.time) && (d.status === 0 || d.status === 1))
+                                   .sort((a, b) => a.time - b.time);
+                                
+                                if (data.length < 1) throw new Error("No valid data found. Requires numeric time and status (0 or 1).");
+
+                                let n_at_risk = data.length;
+                                let survival_prob = 1.0;
+                                const plot_times = [0];
+                                const plot_survival = [1.0];
+
+                                const unique_times = [...new Set(data.map(d => d.time))].sort((a,b) => a-b);
+
+                                for (const t of unique_times) {
+                                    const subjects_at_time = data.filter(d => d.time === t);
+                                    const events_at_t = subjects_at_time.filter(d => d.status === 1).length;
+                                    const censored_at_t = subjects_at_time.filter(d => d.status === 0).length;
+                                    
+                                    const current_at_risk = data.filter(d => d.time >= t).length;
+                                    
+                                    const prev_survival_prob = survival_prob;
+                                    survival_prob = survival_prob * (1 - (events_at_t / current_at_risk));
+
+                                    plot_times.push(t);
+                                    plot_survival.push(prev_survival_prob); // Point before drop
+                                    plot_times.push(t);
+                                    plot_survival.push(survival_prob); // Point after drop
+                                }
+
+                                // Add a final point to extend the line to the max time
+                                const maxTime = ss.max(data.map(d => d.time));
+                                if (plot_times[plot_times.length - 1] < maxTime) {
+                                    plot_times.push(maxTime);
+                                    plot_survival.push(survival_prob);
+                                }
+
+                                plotData = [{
+                                    x: plot_times,
+                                    y: plot_survival,
+                                    mode: 'lines',
+                                    line: { shape: 'hv', color: '#1877F2', width: 2.5 },
+                                    name: 'Survival Probability'
+                                }];
+                                plotLayout = getPlotlyLayout('Kaplan-Meier Survival Curve', 'Time', 'Survival Probability');
+                                plotLayout.yaxis.range = [0, 1.05];
+                                break;
+                            }
+                            
+                            case 'roc_curve': {
+                                const labelVar = document.getElementById('vis-varX').value;
+                                const probVar = document.getElementById('vis-varY').value;
+
+                                const data = appState.data.map(row => ({
+                                    label: parseInt(row[labelVar], 10),
+                                    prob: parseFloat(row[probVar])
+                                })).filter(d => (d.label === 0 || d.label === 1) && !isNaN(d.prob) && d.prob >= 0 && d.prob <= 1)
+                                   .sort((a, b) => b.prob - a.prob); // Sort by probability descending
+                                
+                                if (data.length < 2) throw new Error("No valid data found. Requires binary labels (0/1) and numeric probabilities (0-1).");
+
+                                const total_positives = data.filter(d => d.label === 1).length;
+                                const total_negatives = data.filter(d => d.label === 0).length;
+
+                                if (total_positives === 0 || total_negatives === 0) {
+                                    throw new Error("ROC curve requires both positive (1) and negative (0) true labels to be present in the data.");
+                                }
+
+                                let tp = 0;
+                                let fp = 0;
+                                const tpr_points = [0];
+                                const fpr_points = [0];
+                                let auc = 0;
+                                let last_fpr = 0, last_tpr = 0;
+                                
+                                for (let i = 0; i < data.length; i++) {
+                                    if (data[i].label === 1) {
+                                        tp++;
+                                    } else {
+                                        fp++;
+                                    }
+                                    
+                                    // Only add a new point if the probability changes, or it's the last item
+                                    const is_last_of_kind = (i === data.length - 1 || data[i].prob !== data[i+1].prob);
+
+                                    if (is_last_of_kind) {
+                                        const fpr = fp / total_negatives;
+                                        const tpr = tp / total_positives;
+                                        
+                                        fpr_points.push(fpr);
+                                        tpr_points.push(tpr);
+                                        
+                                        // Calculate trapezoidal area
+                                        auc += (fpr - last_fpr) * (tpr + last_tpr) / 2;
+                                        last_fpr = fpr;
+                                        last_tpr = tpr;
+                                    }
+                                }
+
+                                plotData = [
+                                    {
+                                        x: fpr_points,
+                                        y: tpr_points,
+                                        mode: 'lines',
+                                        type: 'scatter',
+                                        name: 'ROC Curve',
+                                        line: { color: '#1877F2', width: 3 }
+                                    },
+                                    {
+                                        x: [0, 1],
+                                        y: [0, 1],
+                                        mode: 'lines',
+                                        name: 'Reference Line (AUC = 0.5)',
+                                        line: { color: '#f59e0b', dash: 'dash' }
+                                    }
+                                ];
+                                plotLayout = getPlotlyLayout('Receiver Operating Characteristic (ROC) Curve', 'False Positive Rate (1 - Specificity)', 'True Positive Rate (Sensitivity)');
+                                plotLayout.annotations = [{
+                                    x: 0.75,
+                                    y: 0.25,
+                                    text: `<b>AUC = ${auc.toFixed(4)}</b>`,
+                                    showarrow: false,
+                                    font: { size: 14, color: '#111827' }
+                                }];
+                                plotLayout.xaxis.range = [-0.05, 1.05];
+                                plotLayout.yaxis.range = [-0.05, 1.05];
+                                break;
+                            }
+
+                            case 'sankey_diagram': {
+                                const sourceVar = document.getElementById('vis-source').value;
+                                const targetVar = document.getElementById('vis-target').value;
+                                const valueVar = document.getElementById('vis-value').value;
+
+                                if (sourceVar === targetVar || sourceVar === valueVar || targetVar === valueVar) {
+                                    throw new Error("Source, Target, and Value columns must be unique.");
+                                }
+
+                                const sources = [];
+                                const targets = [];
+                                const values = [];
+                                const nodeLabels = new Set();
+
+                                appState.data.forEach(row => {
+                                    const source = row[sourceVar];
+                                    const target = row[targetVar];
+                                    const value = parseFloat(row[valueVar]);
+
+                                    if (source != null && target != null && !isNaN(value) && value > 0) {
+                                        sources.push(source);
+                                        targets.push(target);
+                                        values.push(value);
+                                        nodeLabels.add(source);
+                                        nodeLabels.add(target);
+                                    }
+                                });
+
+                                if (sources.length === 0) throw new Error("No valid data found for Sankey diagram. Ensure Source, Target, and positive numeric Value columns are selected.");
+
+                                const uniqueNodes = Array.from(nodeLabels);
+                                const nodeMap = new Map(uniqueNodes.map((label, index) => [label, index]));
+
+                                const sourceIndices = sources.map(s => nodeMap.get(s));
+                                const targetIndices = targets.map(t => nodeMap.get(t));
+
+                                plotData = [{
+                                    type: "sankey",
+                                    orientation: "h",
+                                    node: {
+                                        pad: 15,
+                                        thickness: 20,
+                                        line: { color: "black", width: 0.5 },
+                                        label: uniqueNodes,
+                                        color: uniqueNodes.map(() => '#1877F2') // Use consistent blue color
+                                    },
+                                    link: {
+                                        source: sourceIndices,
+                                        target: targetIndices,
+                                        value: values,
+                                        color: "rgba(0,0,0,0.2)" // Light gray links
+                                    }
+                                }];
+
+                                plotLayout = getPlotlyLayout(`Sankey Diagram: Flow from ${sourceVar} to ${targetVar}`);
+                                // Sankey specific layout adjustments if needed
+                                plotLayout.font.size = 10;
+                                break;
+                            }
+
+
+                            case 'funnel_chart': {
+                                const catVar = document.getElementById('vis-varCat').value;
+                                const numVar = document.getElementById('vis-varNum').value;
+                                
+                                const aggregatedData = {};
+                                appState.data.forEach(row => {
+                                    const cat = row[catVar];
+                                    const num = parseFloat(row[numVar]);
+                                    if (cat != null && !isNaN(num)) {
+                                        if (!aggregatedData[cat]) aggregatedData[cat] = 0;
+                                        aggregatedData[cat] += num;
+                                    }
+                                });
+
+                                const categories = Object.keys(aggregatedData);
+                                if (categories.length === 0) throw new Error("No valid data found for funnel chart.");
+
+                                // Sort data from largest to smallest value for the funnel
+                                const sortedData = categories.map(cat => ({
+                                    stage: cat,
+                                    value: aggregatedData[cat]
+                                })).sort((a, b) => b.value - a.value);
+
+                                const plotStages = sortedData.map(d => d.stage);
+                                const plotValues = sortedData.map(d => d.value);
+
+                                plotData = [{
+                                    type: 'funnel',
+                                    y: plotStages,
+                                    x: plotValues,
+                                    textposition: 'inside',
+                                    textinfo: 'value+percent initial',
+                                    marker: { color: '#1877F2' }
+                                }];
+                                
+                                plotLayout = getPlotlyLayout(`Funnel Chart for ${numVar} by ${catVar}`);
+                                plotLayout.margin = { l: 150, r: 30, b: 50, t: 50, pad: 4 }; // Add left margin for stage labels
+                                break;
+                            }
 
                             default:
                                 visualizationOutput.innerHTML = `<p class="text-sky-400">The chart type "${chart.replace(/_/g, ' ')}" is not yet implemented in this tool. Please use a Python library for this visualization.</p>`;
@@ -3035,6 +3497,13 @@ import semopy
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
